@@ -1,0 +1,95 @@
+﻿@model List<RealEstateSystem.Models.RealEstateOfferModel>
+@{
+    ViewBag.Title = "Strona główna";
+}
+<script>
+        $(document).ready(function () {
+
+            $("#search-box").keyup(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "Main/ReadCity",
+                    data: 'keyword=' + $(this).val(),
+                    success: function (data) {
+                        $("#suggesstion-box").show();
+                        $("#suggesstion-box").html(data);
+                        $("#search-box").css("background", "#FFF");
+                    }
+                });
+            });
+        });
+        function selectCountry(val) {
+        $("#search-box").val(val);
+        $("#suggesstion-box").hide();
+        }
+</script>
+<style>
+    .controls {
+        position: absolute;
+        margin: auto;
+        top: 30%;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        display:inline-block;
+        font-size:120%;
+    }
+    .searchPanel {
+        position: absolute;
+        margin: auto;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 80%;
+        height: 100px;
+        border-radius: 3px;
+    }
+    ul {
+        list-style-type: none;
+    }
+</style>
+<center>
+    <div class="searchPanel">
+        <form method="get" action="Main/Search">
+            <div class="controls">
+                <div style="display:inline-block">
+                    <label for="city">Miasto</label>
+                    <input autocomplete="off" type="text" name="city" id="search-box" placeholder="Nazwa miasta" />
+                    <div id="suggesstion-box" style="position:absolute; background-color:gray;"></div>
+                </div>
+                <label for="province">Województwo</label>
+                <select id="province" name="province">
+                    <option selected value="all">Wszystkie</option>
+                    @foreach (TerytUslugaWs1.JednostkaTerytorialna province in ViewBag.provinces)
+            {
+                        <option value="@province.POW">@province.NAZWA</option>
+                    }
+                </select>
+                <label for="propType">Rodzaj nieruchomości</label>
+                <select name="propType">
+                    <option selected value="all">Wszystkie</option>
+                    <option value="house">Dom</option>
+                    <option value="land">Ziemia</option>
+                    <option value="garage">Garaż</option>
+                    <option value="premise">Lokal użytkowy</option>
+                    <option value="flat">Mieszkanie</option>
+                    <option value="room">Pokój</option>
+                    <option value="else">Inne</option>
+                </select>
+                <label for="advType">Rodzaj ogłoszenia</label>
+                <select name="advType">
+                    <option selected value="all">Wszystkie</option>
+                    <option value="sale">Sprzedaż</option>
+                    <option value="rent">Wynajem</option>
+                </select>
+                <input type="submit" class="btn btn-default" value="Wyszukaj oferty" />
+            </div>
+        </form>
+    </div>
+</center>
+
+
+
+

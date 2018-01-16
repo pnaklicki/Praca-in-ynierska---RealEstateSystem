@@ -1,0 +1,49 @@
+﻿@model RealEstateSystem.Models.RealEstateOfferModel
+@using PagedList.Mvc;
+@using System.Globalization;
+@{
+    ViewBag.Title = "Szczegóły oferty - " + Model.Title;
+}
+
+<div class="container-fluid">
+    <br />
+    <button type="button" class="btn btn-default" aria-label="Powrót do wyników wyszukiwania" onclick="location.href='@Url.Action("Search","Main", new { page = ViewBag.Page, city = ViewBag.cityFilter, propType = ViewBag.propertyFilter, province = ViewBag.provinceFilter, advType = ViewBag.advertisementFilter})';">
+        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+    </button>
+    <div class="row content">
+        <h2>@Model.Title.Replace("&#243;", "ó")</h2>
+        <h4>@Model.OfferCity.CityDetails.Nazwa.Replace("&#243;", "ó"), @Model.OfferCity.CityDetails.Wojewodztwo</h4>
+        <div class="col-sm-6 sidenav">
+            <div class="row">
+                @foreach (var image in Model.ImagesAddresses)
+                {
+                <div class="col-md-4">
+                    <div class="thumbnail">
+                        <a class="example-image-link" href="@image" data-lightbox="estate-photo">
+                            <img src="@image" alt="@Model.Title.Replace("&#243;","ó")" style="width:100%">
+                        </a>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        @{ 
+            var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+            nfi.NumberGroupSeparator = " ";
+        }
+        <div class="col-sm-6">
+            <div style="background-color:black; opacity:0.7;border-radius:10px;padding: 10px 10px 10px 10px; position:relative; z-index:500"
+                <div style="position:relative; z-index:1000">
+                    <font color="white">
+                        <h5>@Model.Description.Replace("&#243;", "ó")</h5>
+                        <br />
+                        <h4><b>Cena:</b> @Model.Price.ToString("#,0.00", nfi) zł</h4>
+                    </font>
+                </div>
+            </div>
+            <br />
+            <a href="@Model.OfferAddress" target="_blank"><font size="4">Więcej informacji dostępnych jest na stronie oferty</font></a>
+        </div>
+    </div>
+</div>
+

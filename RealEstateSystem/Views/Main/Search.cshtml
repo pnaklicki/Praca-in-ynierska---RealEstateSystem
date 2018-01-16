@@ -1,0 +1,213 @@
+﻿@model PagedList.IPagedList<RealEstateSystem.Models.RealEstateOfferModel>
+@using PagedList.Mvc;
+@using System.Globalization;
+@{
+    ViewBag.Title = "Wyszukaj nieruchomości";
+}
+<script>
+        $(document).ready(function () {
+
+            $("#search-box").keyup(function () {
+                $.ajax({
+                    type: "POST",
+                    url: "ReadCity",
+                    data: 'keyword=' + $(this).val(),
+                    success: function (data) {
+                        $("#suggesstion-box").show();
+                        $("#suggesstion-box").html(data);
+                        $("#search-box").css("background", "#FFF");
+                    }
+                });
+            });
+        });
+        function selectCountry(val) {
+        $("#search-box").val(val);
+        $("#suggesstion-box").hide();
+        }
+</script>
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+
+<form method="get">
+    <div class="form-group">
+        <label for="city">Miasto</label>
+        <div class="frmSearch">
+            @{ 
+                string currentCity = ViewBag.cityFilter == "all" ? "" : ViewBag.cityFilter;
+            }
+            <input autocomplete="off" type="text" name="city" id="search-box" placeholder="Nazwa miasta" value="@currentCity"/>
+            <div id="suggesstion-box"  style="position:absolute; background-color:gray;"></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="province">Województwo</label>
+        <select id="province" name="province">
+            <option selected value="all">Wszystkie</option>
+            @foreach (TerytUslugaWs1.JednostkaTerytorialna province in ViewBag.provinces)
+            {
+                if (province.NAZWA == ViewBag.provinceFilter)
+                {
+                    <option value="@province.POW" selected>@province.NAZWA</option>
+                }
+                else
+                {
+                    <option value="@province.POW">@province.NAZWA</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="propType">Rodzaj nieruchomości</label>
+            <select name="propType">
+                @if (ViewBag.propertyFilter == "all")
+                {
+                <option selected value="all">Wszystkie</option>
+                }
+                else
+                {
+                <option value="all">Wszystkie</option>
+                }
+                @if (ViewBag.propertyFilter == "house")
+                {
+                    <option selected value="house">Dom</option>
+                }
+                else
+                {
+                    <option value="house">Dom</option>
+                }
+                @if (ViewBag.propertyFilter == "land")
+                {
+                    <option selected value="land">Ziemia</option>
+                }
+                else
+                {
+                    <option value="land">Ziemia</option>
+                }
+                @if (ViewBag.propertyFilter == "garage")
+                {
+                    <option selected value="garage">Garaż</option>
+                }
+                else
+                {
+                    <option value="garage">Garaż</option>
+                }
+                @if (ViewBag.propertyFilter == "premise")
+                {
+                    <option selected value="premise">Lokal użytkowy</option>
+                }
+                else
+                {
+                    <option value="premise">Lokal użytkowy</option>
+                }
+                @if (ViewBag.propertyFilter == "flat")
+                {
+                    <option selected value="flat">Mieszkanie</option>
+                }
+                else
+                {
+                    <option value="flat">Mieszkanie</option>
+                }
+                @if (ViewBag.propertyFilter == "room")
+                {
+                    <option selected value="room">Pokój</option>
+                }
+                else
+                {
+                    <option value="room">Pokój</option>
+                }
+                @if (ViewBag.propertyFilter == "else")
+                {
+                    <option selected value="else">Inne</option>
+                }
+                else
+                {
+                    <option value="else">Inne</option>
+                }
+            </select>
+    </div>
+    <div class="form-group">
+        <label for="advType">Rodzaj ogłoszenia</label>
+            <select name="advType">
+                @if (ViewBag.advertisementFilter == "all")
+                {
+                    <option selected value="all">Wszystkie</option>
+                }
+                else
+                {
+                    <option value="all">Wszystkie</option>
+                }
+                @if (ViewBag.advertisementFilter == "sale")
+                {
+                    <option selected value="sale">Sprzedaż</option>
+                }
+                else
+                {
+                    <option value="sale">Sprzedaż</option>
+                }
+                @if (ViewBag.advertisementFilter == "rent")
+                {
+                    <option selected value="rent">Wynajem</option>
+                }
+                else
+                {
+                    <option value="rent">Wynajem</option>
+                }
+            </select>
+    </div>
+    <div class="form-group">
+        <input type="submit" class="btn btn-default" value="Wyszukaj ofert" />
+    </div>
+</form>
+
+<table id="offers" class="tablesorter">
+    <thead>
+        <tr>
+            <th>Zdjęcie</th>
+            <th>Tytuł</th>
+            <th>Miejscowość</th>
+            <th>Cena</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var nfi = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+            nfi.NumberGroupSeparator = " ";
+        }
+        @foreach (var offer in Model)
+        {
+            string firstImageAddress;
+            if(offer.ImagesAddresses.Count > 0)
+            {
+                firstImageAddress = offer.ImagesAddresses.First();
+            }
+            else
+            {
+                firstImageAddress = "";
+            }
+            <tr>
+                <td  onclick="window.open('@Url.Action("Details", "Main", new { offerId = offer.Id, page = Model.PageNumber, city = ViewBag.cityFilter, propType = ViewBag.propertyFilter, province = ViewBag.provinceFilter, advType = ViewBag.advertisementFilter})', '_top')"><img src="@firstImageAddress" width="400" height="200" /></td>
+                <td onclick="window.open('@Url.Action("Details", "Main", new { offerId = offer.Id, page = Model.PageNumber, city = ViewBag.cityFilter, propType = ViewBag.propertyFilter, province = ViewBag.provinceFilter, advType = ViewBag.advertisementFilter})', '_top')">@offer.Title.Replace("&#243;", "ó")</td>
+                <td onclick="window.open('@Url.Action("Details", "Main", new { offerId = offer.Id, page = Model.PageNumber, city = ViewBag.cityFilter, propType = ViewBag.propertyFilter, province = ViewBag.provinceFilter, advType = ViewBag.advertisementFilter})', '_top')">@offer.OfferCity.CityDetails.Nazwa.Replace("&#243;", "ó")</td>
+                <td onclick="window.open('@Url.Action("Details", "Main", new { offerId = offer.Id, page = Model.PageNumber, city = ViewBag.cityFilter, propType = ViewBag.propertyFilter, province = ViewBag.provinceFilter, advType = ViewBag.advertisementFilter})', '_top')">@offer.Price.ToString("#,0.00", nfi) zł</td>
+            </tr>
+        }
+    </tbody>
+</table>
+    <br/>
+    Strona @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) z @Model.PageCount
+    @Html.PagedListPager(Model, page => Url.Action("Search", new {page, city = ViewBag.cityFilter, propType = ViewBag.propertyFilter, province = ViewBag.provinceFilter, advType = ViewBag.advertisementFilter }))
