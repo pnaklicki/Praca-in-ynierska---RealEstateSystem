@@ -17,7 +17,7 @@ namespace RealEstateSystem.Enums
         static City()
         {
             CITIES = new List<City>();
-            foreach(TerytUslugaWs1.MiejscowoscPelna city in DataManagement.Instance.getCities())
+            foreach(TerytUslugaWs1.MiejscowoscPelna city in DataManagement.getCities())
             {
                 CITIES.Add(new City(city));
             }

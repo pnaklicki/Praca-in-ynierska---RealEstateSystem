@@ -12,45 +12,84 @@ using System.Web;
 
 namespace RealEstateSystem
 {
-    public class DataManagement
+    public static class DataManagement
     {
-        private static DataManagement instance = null;
-
         private const string citiesListWebsiteAddress = "http://www.staypoland.com/wszystkie-polskie-miasta_1.htm";
         private const string provincesListWebsiteAddress = "http://www.staypoland.com/wojewodztwa.htm";
 
-        List<TerytUslugaWs1.MiejscowoscPelna> cities;
-        List<TerytUslugaWs1.JednostkaTerytorialna> provinces;
+        private static List<TerytUslugaWs1.MiejscowoscPelna> cities;
+        private static List<TerytUslugaWs1.JednostkaTerytorialna> provinces;
 
-        private DataManagement()
+        public static void Initialize()
         {
             cities = new List<TerytUslugaWs1.MiejscowoscPelna>();
             provinces = new List<TerytUslugaWs1.JednostkaTerytorialna>();
-        }
-
-        public static DataManagement Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    instance = new DataManagement();
-                }
-                return instance;
+            ApplicationDbContext context = new ApplicationDbContext();
+            //cities
+            try
+            {//If there is exception it means table exists
+                context.Database.ExecuteSqlCommand("CREATE TABLE [dbo].[Cities] (" +
+                              "[Id]          INT          IDENTITY(1, 1) NOT NULL," +
+                              "[GmiRodzaj]   VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[GmiSymbol]   VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[Gmina]       VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[Mz]          VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[NMSK]        VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[NMST]        VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[Nazwa]       VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[PowSymbol]   VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[Powiat]      VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[RM]          VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[RMNazwa]     VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[SymBM]       VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[Symbol]      VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[SymbolPodst] VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[SymbolStat]  VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[WojSymbol]   VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "[Wojewodztwo] VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                              "PRIMARY KEY CLUSTERED([Id] ASC));");
             }
+            catch (Exception)
+            {             
+            }
+            //Provinces
+            try
+            {
+                context.Database.ExecuteSqlCommand("CREATE TABLE [dbo].[Provinces] (" +
+                                "[Id]        INT          IDENTITY(1, 1) NOT NULL," +
+                                "[NAZWA]     VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                                "[NAZWA_DOD] VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                                "[WOJ]       VARCHAR(50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL," +
+                                "PRIMARY KEY CLUSTERED([Id] ASC));");
+            }
+            catch (Exception ex)
+            {             
+            }
+            //Updates
+            try
+            {
+                context.Database.ExecuteSqlCommand("CREATE TABLE [dbo].[Updates] (" +
+                                "[Id]   INT      IDENTITY(1, 1) NOT NULL," +
+                                "[Date] DATETIME NOT NULL," +
+                                "PRIMARY KEY CLUSTERED([Id] ASC));");
+            }
+            catch (Exception)
+            {   
+            }
+
         }
 
-        public HashSet<TerytUslugaWs1.MiejscowoscPelna> getCities()
+        public static HashSet<TerytUslugaWs1.MiejscowoscPelna> getCities()
         {
             return new HashSet<TerytUslugaWs1.MiejscowoscPelna>(cities);
         }
 
-        public List<TerytUslugaWs1.JednostkaTerytorialna> getProvinces()
+        public static List<TerytUslugaWs1.JednostkaTerytorialna> getProvinces()
         {
             return provinces;
         }
 
-        private string ReadWebsite(string address)
+        private static string ReadWebsite(string address)
         {
             WebClient client = new WebClient();
             client.Encoding = Encoding.UTF8;
@@ -68,7 +107,7 @@ namespace RealEstateSystem
             return website;
         }
 
-        private bool ShouldDatabaseBeUpdated()
+        private static bool ShouldDatabaseBeUpdated()
         {
             ApplicationDbContext context = new ApplicationDbContext();
             try
@@ -90,7 +129,7 @@ namespace RealEstateSystem
             }
         }
 
-        public void UpdateAreaData()
+        public static void UpdateAreaData()
         {
             if (ShouldDatabaseBeUpdated())
             {
@@ -159,7 +198,7 @@ namespace RealEstateSystem
             }
         }
 
-        private void AddProvinceToDatabase(TerytUslugaWs1.JednostkaTerytorialna province)
+        private static void AddProvinceToDatabase(TerytUslugaWs1.JednostkaTerytorialna province)
         {
             ApplicationDbContext context = new ApplicationDbContext();
             context.Database.ExecuteSqlCommand("INSERT INTO Provinces VALUES (@NAZWA, @NAZWA_DOD, @WOJ)",
@@ -168,7 +207,7 @@ namespace RealEstateSystem
             context.Dispose();
         }
 
-        private void ResetDatabase()
+        private static void ResetDatabase()
         {
             
             ApplicationDbContext context = new ApplicationDbContext();
@@ -178,7 +217,7 @@ namespace RealEstateSystem
             context.Dispose();
         }
 
-        private void AddCityToDatabase(TerytUslugaWs1.MiejscowoscPelna city)
+        private static void AddCityToDatabase(TerytUslugaWs1.MiejscowoscPelna city)
         {
             ApplicationDbContext context = new ApplicationDbContext();
             context.Database.ExecuteSqlCommand("INSERT INTO Cities " +

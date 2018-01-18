@@ -17,8 +17,12 @@ namespace RealEstateSystem.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.cities = DataManagement.Instance.getCities();
-            ViewBag.provinces = DataManagement.Instance.getProvinces();
+            if(TempData["Error"] != null)
+            {
+                ViewBag.Error = TempData["Error"] as string;
+            }
+            ViewBag.cities = DataManagement.getCities();
+            ViewBag.provinces = DataManagement.getProvinces();
             return View();
         }
 
@@ -28,7 +32,7 @@ namespace RealEstateSystem.Controllers
             StringBuilder cityList = new StringBuilder();
             if (keyword.Length >= 2)
             {
-                var matchingCities = new HashSet<TerytUslugaWs1.MiejscowoscPelna>(DataManagement.Instance.getCities().Where(m => m.Nazwa.ToLower().StartsWith(keyword.ToLower())).ToList());
+                var matchingCities = new HashSet<TerytUslugaWs1.MiejscowoscPelna>(DataManagement.getCities().Where(m => m.Nazwa.ToLower().StartsWith(keyword.ToLower())).ToList());
                 cityList.AppendLine("<ul>");
                 matchingCities = new HashSet<TerytUslugaWs1.MiejscowoscPelna>(matchingCities.DistinctBy(m=>m.Nazwa).ToList());
                 foreach (var city in matchingCities)
@@ -43,7 +47,7 @@ namespace RealEstateSystem.Controllers
         [HttpGet]
         public ActionResult Details(string offerId, string city = "all", string propType = "all", string province = "all", string advType = "all", int page = 1)
         {
-            List<RealEstateOfferModel> copyList = WebsitesManagement.Instance.RealEstateOffers.ToList();
+            List<RealEstateOfferModel> copyList = WebsitesManagement.RealEstateOffers.ToList();
             ViewBag.cityFilter = city;
             ViewBag.propertyFilter = propType;
             ViewBag.provinceFilter = province;
@@ -64,20 +68,27 @@ namespace RealEstateSystem.Controllers
                     city = "all";
                 }
                 RealEstateOfferRequestModel requestModel = new RealEstateOfferRequestModel(Province.FromString(province), City.FromString(city), PropertyType.FromString(propType), AdvertisementType.FromString(advType));
-                list = WebsitesManagement.Instance.GetFilteredOffers(requestModel);
+                list = WebsitesManagement.GetFilteredOffers(requestModel);
             }
             catch(Exception ex)
             {
                 Debug.WriteLine(ex);
+                TempData["Error"] = ex.Message;
             }
             ViewBag.cityFilter = city;
             ViewBag.propertyFilter = propType;
             ViewBag.provinceFilter = province;
             ViewBag.advertisementFilter = advType;
-            ViewBag.cities = DataManagement.Instance.getCities();
-            ViewBag.provinces = DataManagement.Instance.getProvinces();
-
-            return View(list.ToPagedList(page,10));
+            ViewBag.cities = DataManagement.getCities();
+            ViewBag.provinces = DataManagement.getProvinces();
+            if (list == null)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return View(list.ToPagedList(page, 10));
+            }
         }
 
         public ActionResult About()

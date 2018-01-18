@@ -258,10 +258,10 @@ namespace RealEstateSystem.RealEstate
                     if (offer != null)
                     {
                         bool isDuplicate = false;
-                        int currentSize = WebsitesManagement.Instance.RealEstateOffers.Count;
+                        int currentSize = WebsitesManagement.RealEstateOffers.Count;
                         for (int i = 0; i < currentSize; i++)
                         {
-                            var singleOffer = WebsitesManagement.Instance.RealEstateOffers.ElementAt(i);
+                            var singleOffer = WebsitesManagement.RealEstateOffers.ElementAt(i);
                             if (singleOffer.IsDuplicate(offer))
                             {
                                 isDuplicate = true;
@@ -270,9 +270,9 @@ namespace RealEstateSystem.RealEstate
                         }
                         if (!isDuplicate)
                         {
-                            lock (WebsitesManagement.Instance.RealEstateOffers)
+                            lock (WebsitesManagement.RealEstateOffers)
                             {
-                                WebsitesManagement.Instance.RealEstateOffers.Add(offer);
+                                WebsitesManagement.RealEstateOffers.Add(offer);
                             }
                         }
                     }

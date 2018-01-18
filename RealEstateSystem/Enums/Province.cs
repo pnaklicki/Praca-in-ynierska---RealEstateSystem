@@ -16,7 +16,7 @@ namespace RealEstateSystem.Enums
 
         public static void Initialize()
         {
-            foreach (TerytUslugaWs1.JednostkaTerytorialna province in DataManagement.Instance.getProvinces())
+            foreach (TerytUslugaWs1.JednostkaTerytorialna province in DataManagement.getProvinces())
             {
                 PROVINCES.Add(new Province(province.NAZWA.First().ToString().ToUpper() + province.NAZWA.Substring(1).ToLower()));
             }

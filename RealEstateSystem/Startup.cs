@@ -20,12 +20,13 @@ namespace RealEstateSystem
         public void Configuration(IAppBuilder app)
         {   
             ConfigureAuth(app);
-            new Task(async () =>
+            new Task(() =>
             {
-                DataManagement.Instance.UpdateAreaData();
+                DataManagement.Initialize();
+                DataManagement.UpdateAreaData();
                 Province.Initialize();
-                await Task.Delay(1000);
-                WebsitesManagement.Instance.GetOffersFromAllWebsites();
+                WebsitesManagement.Initialize();
+                WebsitesManagement.GetOffersFromAllWebsites();
             }).Start();
         }
     }

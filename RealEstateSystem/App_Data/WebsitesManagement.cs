@@ -9,14 +9,15 @@ using System.Web;
 
 namespace RealEstateSystem
 {
-    public class WebsitesManagement
+    public static class WebsitesManagement
     {
-        private static WebsitesManagement instance = null;
-        private List<RealEstateWebsite> estateWebsites;
-        private List<RealEstateOfferModel> realEstateOffers;
-        private Timer timer;
+        private static List<RealEstateWebsite> estateWebsites;
+        private static List<RealEstateOfferModel> realEstateOffers;
+        private static Timer timer;
 
-        private WebsitesManagement()
+
+
+        public static void Initialize()
         {
             realEstateOffers = new List<RealEstateOfferModel>();
             estateWebsites = new List<RealEstateWebsite>();
@@ -24,19 +25,7 @@ namespace RealEstateSystem
             estateWebsites.Add(new DomiPortaWebsite());
         }
 
-        public static WebsitesManagement Instance
-        {
-            get
-            {
-                if(instance == null)
-                {
-                    instance = new WebsitesManagement();
-                }
-                return instance;
-            }
-        }
-
-        public List<RealEstateOfferModel> RealEstateOffers
+        public static List<RealEstateOfferModel> RealEstateOffers
         {
             get
             {
@@ -49,7 +38,7 @@ namespace RealEstateSystem
             }
         }
 
-        public List<RealEstateOfferModel> GetFilteredOffers(RealEstateOfferRequestModel a_offer)
+        public static List<RealEstateOfferModel> GetFilteredOffers(RealEstateOfferRequestModel a_offer)
         {
             List<RealEstateOfferModel> offers = new List<RealEstateOfferModel>();
             lock (RealEstateOffers)
@@ -63,7 +52,7 @@ namespace RealEstateSystem
         /// This method starts collecting all offers from all websites,
         /// so it may take a while to complete
         /// </summary>
-        public async void GetOffersFromAllWebsites()
+        public static async void GetOffersFromAllWebsites()
         {
             timer = new Timer();
             timer.Elapsed += new ElapsedEventHandler(OnOffersRefreshEvent);
@@ -77,7 +66,7 @@ namespace RealEstateSystem
             }
         }
 
-        private void OnOffersRefreshEvent(object source, ElapsedEventArgs e)
+        private static void OnOffersRefreshEvent(object source, ElapsedEventArgs e)
         {
             //Start real estate refresh process
             GetOffersFromAllWebsites();

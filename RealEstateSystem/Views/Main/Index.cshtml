@@ -2,6 +2,10 @@
 @{
     ViewBag.Title = "Strona główna";
 }
+@if (ViewBag.Error != null)
+{
+    <center><font color="red" size="4">Obecnie system jest w trakcie konserwacji. Spróbuj ponownie za kilka minut.</font></center>
+}
 <script>
         $(document).ready(function () {
 
